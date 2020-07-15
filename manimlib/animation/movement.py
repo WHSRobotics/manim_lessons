@@ -76,3 +76,43 @@ class MoveAlongPath(Animation):
     def interpolate_mobject(self, alpha):
         point = self.path.point_from_proportion(alpha)
         self.mobject.move_to(point)
+
+class MoveAlongPathWhileRotating(Animation):
+    CONFIG = {
+        "suspend_mobject_updating": False,
+    }
+
+    def __init__(self, mobject, function, angle=0, reverse=False, rotate=True, decimal=None, decimal2=None, scale=0, scale2=None, **kwargs):
+        self.mobject = mobject
+        self.function = function
+        self.angle = angle
+        self.reverse = reverse
+        self.rotate = rotate
+        self.decimal = decimal
+        self.scale = scale
+        self.decimal2 = decimal2
+        if scale2 == None:
+            self.scale2 = scale
+        else:
+            self.scale2 = scale2
+        super().__init__(mobject, **kwargs)
+
+    def interpolate_mobject(self, alpha):
+        self.mobject.become(self.starting_mobject)
+        if self.reverse:
+            arc_angle = self.angle*(1-alpha)
+            rotate_angle = -self.angle*alpha
+            point = self.function.get_point_from_function(arc_angle)
+        else:
+            arc_angle = self.angle*alpha
+            rotate_angle = arc_angle
+            point = self.function.get_point_from_function(arc_angle)
+        
+        self.mobject.move_to(point)
+        if self.rotate:
+            self.mobject.rotate(rotate_angle)
+
+        if self.decimal != None:
+            self.decimal.set_value(self.scale*arc_angle)
+        if self.decimal2 != None:
+            self.decimal2.set_value(self.scale2*arc_angle)
