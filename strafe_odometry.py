@@ -16,64 +16,6 @@ import numpy as np
 # Use -r <number> to specify a resolution (for example, -r 1080
 # for a 1920x1080 video)
 
-
-class OpeningManimExample(Scene):
-    def construct(self):
-        title = TextMobject("This is some \\LaTeX")
-        basel = TexMobject(
-            "\\sum_{n=1}^\\infty "
-            "\\frac{1}{n^2} = \\frac{\\pi^2}{6}"
-        )
-        VGroup(title, basel).arrange(DOWN)
-        self.play(
-            Write(title),
-            FadeInFrom(basel, UP),
-        )
-        self.wait()
-
-        transform_title = TextMobject("That was a transform")
-        transform_title.to_corner(UP + LEFT)
-        self.play(
-            Transform(title, transform_title),
-            LaggedStart(*map(FadeOutAndShiftDown, basel)),
-        )
-        self.wait()
-
-        grid = NumberPlane()
-        grid_title = TextMobject("This is a grid")
-        grid_title.scale(1.5)
-        grid_title.move_to(transform_title)
-
-        self.add(grid, grid_title)  # Make sure title is on top of grid
-        self.play(
-            FadeOut(title),
-            FadeInFromDown(grid_title),
-            ShowCreation(grid, run_time=3, lag_ratio=0.1),
-        )
-        self.wait()
-
-        grid_transform_title = TextMobject(
-            "That was a non-linear function \\\\"
-            "applied to the grid"
-        )
-        grid_transform_title.move_to(grid_title, UL)
-        grid.prepare_for_nonlinear_transform()
-        self.play(
-            grid.apply_function,
-            lambda p: p + np.array([
-                np.sin(p[1]),
-                np.sin(p[0]),
-                0,
-            ]),
-            run_time=3,
-        )
-        self.wait()
-        self.play(
-            Transform(grid_title, grid_transform_title)
-        )
-        self.wait()
-
-
 class Drive(MovingCameraScene):
 
     def construct(self):
@@ -119,138 +61,123 @@ class Drive(MovingCameraScene):
         straightStrafeFunction = createFunction(lambda t : np.array([-strafeRadius*t, 0, 0]), GREEN)
 
         tankFunction = createFunction(lambda t : np.array([-tankRadius*(1-math.cos(t)), tankRadius*math.sin(t), 0]), BLUE)
-        leftOdomFunction = createFunction(lambda t : np.array([-(tankRadius-odomRadius)*(1-math.cos(t))-odomRadius, (tankRadius-odomRadius)*math.sin(t), 0]), BLUE)
-        rightOdomFunction = createFunction(lambda t : np.array([-(tankRadius+odomRadius)*(1-math.cos(t))+odomRadius, (tankRadius+odomRadius)*math.sin(t), 0]), BLUE)
+        leftOdomFunction = createFunction(lambda t : np.array([-(tankRadius-odomRadius)*(1-math.cos(t))-odomRadius, 
+            (tankRadius-odomRadius)*math.sin(t), 0]), BLUE)
+        rightOdomFunction = createFunction(lambda t : np.array([-(tankRadius+odomRadius)*(1-math.cos(t))+odomRadius, 
+            (tankRadius+odomRadius)*math.sin(t), 0]), BLUE)
+
         strafeFunction = createFunction(lambda t : np.array([-strafeRadius*math.sin(t), -strafeRadius*(1-math.cos(t)), 0]), GREEN)
-        backOdomFunction = createFunction(lambda t : np.array([-(strafeRadius-odomRadius)*math.sin(t), -(strafeRadius-odomRadius)*(1-math.cos(t))-odomRadius, 0]), GREEN)
-        movementFunction = createFunction(lambda t : np.array([-strafeRadius * math.sin(t) - tankRadius * (1-math.cos(t)), tankRadius * math.sin(t) - strafeRadius * (1-math.cos(t)), 0]), RED)
+        backOdomFunction = createFunction(lambda t : np.array([-(strafeRadius-odomRadius)*math.sin(t), 
+            -(strafeRadius-odomRadius)*(1-math.cos(t))-odomRadius, 0]), GREEN)
+
+        movementFunction = createFunction(lambda t : np.array([-strafeRadius * math.sin(t) - tankRadius * (1-math.cos(t)), 
+            tankRadius * math.sin(t) - strafeRadius * (1-math.cos(t)), 0]), RED)
         
         tankR1 = Line(tankFunction.get_point_from_function(0), np.array([-tankRadius,0,0]), color=BLUE)
         tankR2 = Line(tankFunction.get_point_from_function(angle), np.array([-tankRadius,0,0]), color=BLUE)
         strafeR1 = Line(np.array([0,0,0]), np.array([0,-strafeRadius,0]), color=GREEN)
         strafeR2 = Line(strafeFunction.get_point_from_function(angle), np.array([0,-strafeRadius,0]), color=GREEN)
 
-        tankEquation = TexMobject("fwd","=","{left","+","right","\\over","2}")
+        tankEquation = TexMobject("fwd","=","{ left","+","right","\\over","2}","=")
         tankEquation[0].set_color(BLUE)
         tankEquation[2].set_color(BLUE)
         tankEquation[4].set_color(BLUE)
         tankEquation.scale(0.7)
 
-        tankOdomLabel = VGroup(DecimalNumber(0), DecimalNumber(0))
-        tankOdomLabel.arrange(RIGHT)
+        tankOdomLabel = VGroup(DecimalNumber(0).scale(.7), DecimalNumber(0).scale(.7))
+        # tankOdomLabel.arrange(RIGHT)
         tankOdomLabel.next_to(startRobot, LEFT*3 + UP*10)
+        tankEquationLabel = DecimalNumber(0).scale(.7)
 
-        tempFunction = straightTankFunction.copy()
+
+        # Start animation code
         self.play(ShowCreation(startRobot))
-        # self.play(ShowCreation(tempFunction), MoveAlongPathWhileRotating(straightTankRobot, straightTankFunction, angle, rotate=False))
-        # self.play(Uncreate(tempFunction), MoveAlongPathWhileRotating(straightTankRobot, straightTankFunction, angle, reverse=True, rotate=False))
-        # self.remove(straightTankRobot)
 
-        # tempFunction = straightStrafeFunction.copy()
-        # self.play(ShowCreation(tempFunction), MoveAlongPathWhileRotating(straightStrafeRobot, straightStrafeFunction, angle, rotate=False))
-        # self.play(Uncreate(tempFunction), MoveAlongPathWhileRotating(straightStrafeRobot, straightStrafeFunction, angle, reverse=True, rotate=False))
-        # self.remove(straightStrafeRobot)
+        # Draw & undraw straight tank/strafe + rotate movements individually
+            # Need temp objects since there_and_back ShowCreations, Uncreates, and Transforms seem to delete them
+        tempStraightTankFunction = straightTankFunction.copy()
+        self.play(ShowCreation(tempStraightTankFunction), 
+            MoveAlongPathWhileRotating(straightTankRobot, tempStraightTankFunction, angle, rotate=False), 
+            rate_func=there_and_back, run_time=2)
+        self.remove(straightTankRobot)
+        self.wait(.5)
 
-        # self.play(Rotate(startRobot, angle))
-        # self.play(Rotate(startRobot, -angle))
+        tempStraightStrafeFunction = straightStrafeFunction.copy()
+        self.play(ShowCreation(tempStraightStrafeFunction), 
+            MoveAlongPathWhileRotating(straightStrafeRobot, tempStraightStrafeFunction, angle, rotate=False),
+            rate_func=there_and_back, run_time=2)
+        self.remove(straightStrafeRobot)
+        self.wait(.5)
 
-        # tempRobot = tankRobot.copy()
-        # tempRobot2 = strafeRobot.copy()
-        # tempFunction = tankFunction.copy()
-        # tempFunction2 = strafeFunction.copy()
-        # self.play(ShowCreation(tempFunction), MoveAlongPathWhileRotating(tempRobot, tempFunction, angle), 
-        #     ShowCreation(straightTankFunction), MoveAlongPathWhileRotating(straightTankRobot, straightTankFunction, angle, rotate=False))
-        # self.play(FadeOut(straightTankFunction), FadeOut(straightTankRobot))
-        # self.wait(.5)
+        self.play(Rotate(startRobot, angle), rate_func=there_and_back, run_time=2)
+        self.wait(.5)
 
-        # self.play(ShowCreation(tempFunction2), MoveAlongPathWhileRotating(tempRobot2, tempFunction2, angle), 
-        #     ShowCreation(straightStrafeFunction), MoveAlongPathWhileRotating(straightStrafeRobot, straightStrafeFunction, angle, rotate=False))
-        # self.play(FadeOut(straightStrafeFunction), FadeOut(straightStrafeRobot))
-        # self.wait(.5)
+        # Draw straight & arc tank/strafe paths side by side, then fade straight paths
+        tempTankRobot = tankRobot.copy()
+        tempStrafeRobot = strafeRobot.copy()
+        tempTankFunction = tankFunction.copy()
+        tempStrafeFunction = strafeFunction.copy()
+        self.play(MoveAlongPathWhileRotating(tempTankRobot, tempTankFunction, angle),
+            MoveAlongPathWhileRotating(straightTankRobot, straightTankFunction, angle, rotate=False), 
+            ShowCreation(tempTankFunction), ShowCreation(straightTankFunction))
+        self.play(FadeOut(straightTankFunction), FadeOut(straightTankRobot))
+        self.wait(.5)
 
-        # movementRobot.move_to(movementFunction.get_point_from_function(angle)).rotate(angle)
+        self.play(MoveAlongPathWhileRotating(tempStrafeRobot, tempStrafeFunction, angle),
+            MoveAlongPathWhileRotating(straightStrafeRobot, straightStrafeFunction, angle, rotate=False),
+            ShowCreation(tempStrafeFunction), ShowCreation(straightStrafeFunction))
+        self.play(FadeOut(straightStrafeFunction), FadeOut(straightStrafeRobot))
+        self.wait(.5)
 
-        # tempFunction3 = movementFunction.copy()
-        # self.play(ReplacementTransform(tempFunction, tempFunction3), ReplacementTransform(tempFunction2, tempFunction3),
-        #     ReplacementTransform(tempRobot, movementRobot), ReplacementTransform(tempRobot2, movementRobot))
-        # self.wait()
-
-        # self.play(Uncreate(tempFunction3), MoveAlongPathWhileRotating(movementRobot, tempFunction3, angle, reverse=True))
-        # self.play(FadeOut(movementRobot))
-        # self.wait(2)
-
-        self.play(ApplyMethod(odom[0][0].scale, 1.5), ApplyMethod(odom[0][1].scale, 1.5), run_time=0.5)
-        self.play(ApplyMethod(odom[0][0].scale, 1/1.5), ApplyMethod(odom[0][1].scale, 1/1.5), run_time=0.5)
+        # Transform arc paths into overall movement path, then undraw movement path
+        tempMovementFunction = movementFunction.copy()
+        movementRobot.move_to(movementFunction.get_point_from_function(angle)).rotate(angle)
+        self.play(ReplacementTransform(tempTankRobot, movementRobot), ReplacementTransform(tempStrafeRobot, movementRobot), 
+            ReplacementTransform(tempTankFunction, tempMovementFunction), ReplacementTransform(tempStrafeFunction, tempMovementFunction))
         self.wait()
-        self.play(ShowCreation(tankFunction), MoveAlongPathWhileRotating(tankRobot, tankFunction, angle),
-            ShowCreation(leftOdomFunction), ShowCreation(rightOdomFunction), run_time=2)
-        self.play(self.camera_frame.move_to, leftOdomFunction.get_point_from_function(angle/2) + np.array([-3,1,0]))#, FadeOut(backOdomFunction), FadeOut(movementRobot), FadeOut(movementFunction), FadeOut(strafeRobot))
+
+        self.play(MoveAlongPathWhileRotating(movementRobot, tempMovementFunction, angle, reverse=True), 
+            Uncreate(tempMovementFunction))
+        self.play(FadeOut(movementRobot))
+        self.wait(2)
+
+        # Emphasize L/R odom wheels, then draw tank path with odom paths 
+        self.play(ApplyMethod(odom[0][0].scale, 2), ApplyMethod(odom[0][1].scale, 2), run_time=0.6)
+        self.play(ApplyMethod(odom[0][0].scale, 1/2), ApplyMethod(odom[0][1].scale, 1/2), run_time=0.6)
+        self.wait()
+        tempLeftOdomFunction = leftOdomFunction.copy()
+        tempRightOdomFunction = rightOdomFunction.copy()
+        tempTankFunction = tankFunction.copy()
+        self.play(MoveAlongPathWhileRotating(tankRobot, tankFunction, angle),
+            ShowCreation(tempLeftOdomFunction), ShowCreation(tempRightOdomFunction), ShowCreation(tempTankFunction), run_time=2.5)
+
+        # Move camera so diagram is in bottom right, then write out forward equation
+        self.play(self.camera_frame.move_to, leftOdomFunction.get_point_from_function(angle/2) + np.array([-3,1,0]))
+
         tankEquation.next_to(self.camera_frame.get_corner(UP+LEFT), DOWN*6+RIGHT*8)
-        self.play(TransformFromCopy(tankFunction, tankEquation[0]), FadeIn(tankEquation[1], run_time=2))
-        # self.wait()
-        self.play(TransformFromCopy(leftOdomFunction, tankEquation[2]), TransformFromCopy(rightOdomFunction, tankEquation[4]),
-            FadeIn(tankEquation[3], run_time=2), FadeIn(tankEquation[5], run_time=2), FadeIn(tankEquation[6], run_time=2))
+        self.play(TransformFromCopy(tempTankFunction, tankEquation[0]), FadeIn(tankEquation[1], run_time=2))
+        self.play(TransformFromCopy(tempLeftOdomFunction, tankEquation[2]), TransformFromCopy(tempRightOdomFunction, tankEquation[4]),
+            FadeIn(tankEquation[3], run_time=2), FadeIn(tankEquation[5], run_time=2), 
+            FadeIn(tankEquation[6], run_time=2), FadeIn(tankEquation[7], run_time=2))
         self.wait()
 
-class SquareToCircle(Scene):
-    def construct(self):
-        circle = Circle()
-        square = Square()
-        square.flip(RIGHT)
-        square.rotate(-3 * TAU / 8)
-        circle.set_fill(PINK, opacity=0.5)
+        # Add in actual values to the tank equation
+        tankOdomLabel[0].move_to(tankEquation[2].get_center())
+        tankOdomLabel[1].move_to(tankEquation[4].get_center())
+        tankEquationLabel.next_to(tankEquation[7], RIGHT*.5)
+        self.play(ReplacementTransform(tankEquation[2], tankOdomLabel[0]), 
+            ReplacementTransform(tankEquation[4], tankOdomLabel[1]), FadeIn(tankEquationLabel))
 
-        self.play(ShowCreation(square))
-        self.play(Transform(square, circle))
-        self.play(FadeOut(square))
+        # Undraw, then re-draw tank + L/R odom paths, updating the tank equation in real time
+        self.play(MoveAlongPathWhileRotating(tankRobot, tempTankFunction, angle, reverse=True, 
+            decimals_and_scales={tankOdomLabel[0]: tankRadius-odomRadius, tankOdomLabel[1]: tankRadius+odomRadius, tankEquationLabel: tankRadius}),
+            Uncreate(tempLeftOdomFunction), Uncreate(tempRightOdomFunction), Uncreate(tempTankFunction), run_time=2)
+        self.wait(.75)
 
-
-class WarpSquare(Scene):
-    def construct(self):
-        square = Square()
-        self.play(ApplyPointwiseFunction(
-            lambda point: complex_to_R3(np.exp(R3_to_complex(point))),
-            square
-        ))
+        tempLeftOdomFunction = leftOdomFunction.copy()
+        tempRightOdomFunction = rightOdomFunction.copy()
+        tempTankFunction = tankFunction.copy()
+        self.play(MoveAlongPathWhileRotating(tankRobot, tankFunction, angle, 
+            decimals_and_scales={tankOdomLabel[0]: tankRadius-odomRadius, tankOdomLabel[1]: tankRadius+odomRadius, tankEquationLabel: tankRadius}),
+            ShowCreation(tempLeftOdomFunction), ShowCreation(tempRightOdomFunction), ShowCreation(tempTankFunction), run_time=2)
         self.wait()
-
-
-class WriteStuff(Scene):
-    def construct(self):
-        example_text = TextMobject(
-            "This is a some text",
-            tex_to_color_map={"text": YELLOW}
-        )
-        example_tex = TexMobject(
-            "\\sum_{k=1}^\\infty {1 \\over k^2} = {\\pi^2 \\over 6}",
-        )
-        group = VGroup(example_text, example_tex)
-        group.arrange(DOWN)
-        group.set_width(FRAME_WIDTH - 2 * LARGE_BUFF)
-
-        self.play(Write(example_text))
-        self.play(Write(example_tex))
-        self.wait()
-
-
-class UpdatersExample(Scene):
-    def construct(self):
-        decimal = DecimalNumber(
-            0,
-            show_ellipsis=True,
-            num_decimal_places=3,
-            include_sign=True,
-        )
-        square = Square().to_edge(UP)
-
-        decimal.add_updater(lambda d: d.next_to(square, RIGHT))
-        decimal.add_updater(lambda d: d.set_value(square.get_center()[1]))
-        self.add(square, decimal)
-        self.play(
-            square.to_edge, DOWN,
-            rate_func=there_and_back,
-            run_time=5,
-        )
-        self.wait()
-
-# See old_projects folder for many, many more
