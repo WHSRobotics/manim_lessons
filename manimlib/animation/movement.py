@@ -38,9 +38,11 @@ class ComplexHomotopy(Homotopy):
         """
         Complex Hootopy a function Cx[0, 1] to C
         """
+
         def homotopy(x, y, z, t):
             c = complex_homotopy(complex(x, y), t)
             return (c.real, c.imag, z)
+
         Homotopy.__init__(self, homotopy, mobject, **kwargs)
 
 
@@ -77,6 +79,7 @@ class MoveAlongPath(Animation):
         point = self.path.point_from_proportion(alpha)
         self.mobject.move_to(point)
 
+
 class MoveAlongPathWhileRotating(Animation):
     CONFIG = {
         "suspend_mobject_updating": False,
@@ -95,11 +98,11 @@ class MoveAlongPathWhileRotating(Animation):
         self.mobject.become(self.starting_mobject)
 
         if self.reverse:
-            arc_angle = self.function.t_max - self.angle*alpha #self.angle*(1-alpha)
-            rotate_angle = -self.angle*alpha
+            arc_angle = self.function.t_max - self.angle * alpha  # self.angle*(1-alpha)
+            rotate_angle = -self.angle * alpha
             point = self.function.get_point_from_function(arc_angle)
         else:
-            arc_angle = self.angle*alpha + self.function.t_min
+            arc_angle = self.angle * alpha + self.function.t_min
             rotate_angle = arc_angle
             point = self.function.get_point_from_function(arc_angle)
 
@@ -107,7 +110,6 @@ class MoveAlongPathWhileRotating(Animation):
         if self.rotate:
             self.mobject.rotate(rotate_angle)
 
-
-        if self.decimals_and_scales != None:
+        if self.decimals_and_scales is not None:
             for decimal, scale in self.decimals_and_scales.items():
-                decimal.set_value(scale*arc_angle)
+                decimal.set_value(scale * arc_angle)
