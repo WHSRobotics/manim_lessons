@@ -46,7 +46,7 @@ def parse_cli():
             help="Render at a medium quality",
         ),
         parser.add_argument(
-            "--high_quality",
+            "-H", "--high_quality",
             action="store_true",
             help="Render at a high quality",
         ),

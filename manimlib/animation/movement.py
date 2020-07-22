@@ -85,9 +85,9 @@ class MoveAlongPathWhileRotating(Animation):
         "suspend_mobject_updating": False,
     }
 
-    def __init__(self, mobject, function, angle=0, reverse=False, rotate=True, decimals_and_scales=None, **kwargs):
+    def __init__(self, mobject, path, angle=0, reverse=False, rotate=True, decimals_and_scales=None, **kwargs):
         self.mobject = mobject
-        self.function = function
+        self.path = path
         self.angle = angle
         self.reverse = reverse
         self.rotate = rotate
@@ -98,13 +98,13 @@ class MoveAlongPathWhileRotating(Animation):
         self.mobject.become(self.starting_mobject)
 
         if self.reverse:
-            arc_angle = self.function.t_max - self.angle * alpha  # self.angle*(1-alpha)
+            arc_angle = self.path.t_max - self.angle * alpha  # self.angle*(1-alpha)
             rotate_angle = -self.angle * alpha
-            point = self.function.get_point_from_function(arc_angle)
+            point = self.path.get_point_from_function(arc_angle)
         else:
-            arc_angle = self.angle * alpha + self.function.t_min
+            arc_angle = self.angle * alpha + self.path.t_min
             rotate_angle = arc_angle
-            point = self.function.get_point_from_function(arc_angle)
+            point = self.path.get_point_from_function(arc_angle)
 
         self.mobject.move_to(point)
         if self.rotate:
