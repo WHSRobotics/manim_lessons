@@ -1,4 +1,4 @@
-name: manim
+name: manim2
 channels:
   - defaults
   - conda-forge
