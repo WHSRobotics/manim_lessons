@@ -87,13 +87,13 @@ class StrafeOdometry(MovingCameraScene):
         dx_label = TexMobject("dx").scale(0.8).set_color(BLUE)
         dy_label = TexMobject("dy").scale(0.8).set_color(GREEN)
 
-        r_x1 = Line(dx_path.get_point_from_function(0), np.array([-dx_radius, 0, 0]), color=BLUE)
-        r_x2 = Line(dx_path.get_point_from_function(rotate_angle), np.array([-dx_radius, 0, 0]), color=BLUE)
-        r_y1 = Line(dy_path.get_point_from_function(0), np.array([0, -dy_radius, 0]), color=GREEN)
-        r_y2 = Line(dy_path.get_point_from_function(rotate_angle), np.array([0, -dy_radius, 0]), color=GREEN)
+        r_x1 = Line(dx_path.get_point_from_function(0), np.array([-dx_radius, 0, 0]), color=TEAL)
+        r_x2 = Line(dx_path.get_point_from_function(rotate_angle), np.array([-dx_radius, 0, 0]), color=TEAL)
+        r_y1 = Line(dy_path.get_point_from_function(0), np.array([0, -dy_radius, 0]), color=GOLD)
+        r_y2 = Line(dy_path.get_point_from_function(rotate_angle), np.array([0, -dy_radius, 0]), color=GOLD)
 
-        r_x_label = TexMobject("r_x").scale(0.8).next_to(r_x1, direction=DOWN)
-        r_y_label = TexMobject("r_y").scale(0.8).next_to(r_y2).shift(LEFT)
+        r_x_label = TexMobject("r_x", color=TEAL).scale(0.8).next_to(r_x1, direction=DOWN)
+        r_y_label = TexMobject("r_y", color=GOLD).scale(0.8).next_to(r_y2).shift(LEFT)
 
         dx_angle_marker = VGroup(Arc(radius=1.5, arc_center=np.array([-dx_radius, 0, 0]), angle=rotate_angle),
                                  TexMobject("d\\theta").scale(0.8)).set_color(RED_E)
@@ -120,9 +120,11 @@ class StrafeOdometry(MovingCameraScene):
         right_arc_length_equation = TexMobject("right", "=", "(", "r_x", "+", "0.5\\ast", "track width", ")",
                                                "d\\theta").scale(0.8)
         left_arc_length_equation[0].set_color(PURPLE)
+        left_arc_length_equation[3].set_color(TEAL)
         left_arc_length_equation[6].set_color(GRAY)
         left_arc_length_equation[8].set_color(RED_E)
         right_arc_length_equation[0].set_color(PURPLE)
+        right_arc_length_equation[3].set_color(TEAL)
         right_arc_length_equation[6].set_color(GRAY)
         right_arc_length_equation[8].set_color(RED_E)
 
@@ -160,13 +162,17 @@ class StrafeOdometry(MovingCameraScene):
         alternate_r_y_equation = TexMobject("r_y", "=", "dy", "/", "d\\theta").scale(0.8)
         unsimplified_r_y_equation = TexMobject("r_y", "=", "(", "back", "-", "r_{back}", "d\\theta", ")", "/",
                                                "d\\theta").scale(0.8)
+        r_x_equation[0].set_color(TEAL)
         r_x_equation[2].set_color(BLUE)
         r_x_equation[4].set_color(RED_E)
+        r_y_equation[0].set_color(GOLD)
         r_y_equation[2].set_color(PURPLE)
         r_y_equation[4].set_color(RED_E)
         r_y_equation[6].set_color(GRAY)
+        alternate_r_y_equation[0].set_color(GOLD)
         alternate_r_y_equation[2].set_color(GREEN)
         alternate_r_y_equation[4].set_color(RED_E)
+        unsimplified_r_y_equation[0].set_color(GOLD)
         unsimplified_r_y_equation[3].set_color(PURPLE)
         unsimplified_r_y_equation[5].set_color(GRAY)
         unsimplified_r_y_equation[6].set_color(RED_E)
@@ -197,20 +203,28 @@ class StrafeOdometry(MovingCameraScene):
         dx_y_unsimplified_equation = TexMobject("dx_y", "=", "r_x", "-", "r_x", "cos(", "d\\theta", ")").scale(0.8)
         dx_y_equation = TexMobject("dx_y", "=", "-", "r_x", "(1-cos(", "d\\theta", "))").scale(0.8)
         dx_x_equation[0].set_color(RED_E)
+        dx_equation[2].set_color(TEAL)
         dx_x_equation[4].set_color(RED_E)
         dx_y_unsimplified_equation[0].set_color(RED_E)
+        dx_y_unsimplified_equation[2].set_color(TEAL)
+        dx_y_unsimplified_equation[4].set_color(TEAL)
         dx_y_unsimplified_equation[6].set_color(RED_E)
         dx_y_equation[0].set_color(RED_E)
+        dx_y_equation[3].set_color(TEAL)
         dx_y_equation[5].set_color(RED_E)
 
         dy_x_unsimplified_equation = TexMobject("dy_x", "=", "r_y", "-", "r_y", "cos(", "d\\theta", ")").scale(0.8)
         dy_x_equation = TexMobject("dy_x", "=", "r_y", "(1-cos(", "d\\theta", "))").scale(0.8)
         dy_y_equation = TexMobject("dy_y", "=", "r_y", "sin(", "d\\theta", ")").scale(0.8)
         dy_x_unsimplified_equation[0].set_color(RED_E)
+        dy_x_unsimplified_equation[2].set_color(GOLD)
+        dy_x_unsimplified_equation[4].set_color(GOLD)
         dy_x_unsimplified_equation[6].set_color(RED_E)
         dy_x_equation[0].set_color(RED_E)
+        dy_x_equation[2].set_color(GOLD)
         dy_x_equation[4].set_color(RED_E)
         dy_y_equation[0].set_color(RED_E)
+        dy_y_equation[2].set_color(GOLD)
         dy_y_equation[4].set_color(RED_E)
 
         """
@@ -428,7 +442,7 @@ class StrafeOdometry(MovingCameraScene):
         self.wait()
 
         dx_robot_axes = robot_axes.copy()
-        dx_robot_axes.next_to(self.camera_frame.get_corner(UR), DL * 4).set_color(BLUE)
+        dx_robot_axes.next_to(self.camera_frame.get_corner(UR), DL * 4).set_color(WHITE)
         rotate_group = VGroup(start_robot, temp_dx_robot, temp_dx_path, r_x1, r_x2, dx_angle_marker[0])
         dx_components_labels = VGroup(TexMobject("dx_x").next_to(dx_components[0], LEFT).shift(RIGHT * 0.2),
                                       TexMobject("dx_y").next_to(dx_components[1], UP).shift(RIGHT * 0.2)).scale(
@@ -490,7 +504,7 @@ class StrafeOdometry(MovingCameraScene):
                               VGroup(dx_y_unsimplified_equation[0], dx_y_unsimplified_equation[1])))
         self.wait(.5)
 
-        temp_dx_r2 = Line(r_x2.get_end(), r_x2.get_start()).set_color(BLUE).shift(UP * 0.02)
+        temp_dx_r2 = Line(r_x2.get_end(), r_x2.get_start()).set_color(TEAL).shift(UP * 0.02)
         temp_dx_r2_2 = temp_dx_r2.copy().shift(DOWN * 0.04)
         self.play(ShowCreation(temp_dx_r2), ShowCreation(temp_dx_r2_2))
         self.wait(.5)
@@ -498,7 +512,7 @@ class StrafeOdometry(MovingCameraScene):
                   ReplacementTransform(temp_dx_r2_2, dx_y_unsimplified_equation[2]))
         self.wait(.5)
 
-        temp_line1 = Line(r_x2.get_end(), dx_components[0].get_end()).set_color(BLUE).shift(UP * 0.02)
+        temp_line1 = Line(r_x2.get_end(), dx_components[0].get_end()).set_color(WHITE).shift(UP * 0.02)
         temp_line2 = temp_line1.copy().shift(DOWN * 0.04)
         self.play(FadeIn(dx_y_unsimplified_equation[3]))
         self.play(ShowCreation(temp_line1), ShowCreation(temp_line2))
@@ -645,7 +659,7 @@ class StrafeOdometry(MovingCameraScene):
         self.play(ShowCreation(dy_angle_marker))
 
         dy_robot_axes = robot_axes.copy()
-        dy_robot_axes.next_to(self.camera_frame.get_corner(UR), DL * 4).set_color(GREEN)
+        dy_robot_axes.next_to(self.camera_frame.get_corner(UR), DL * 4).set_color(WHITE)
         rotate_group = VGroup(start_robot, temp_dy_robot, temp_dy_path, r_y1, r_y2,
                               dy_angle_marker[0])
         dy_components_labels = VGroup(
@@ -713,7 +727,7 @@ class StrafeOdometry(MovingCameraScene):
                               VGroup(dy_x_unsimplified_equation[0], dy_x_unsimplified_equation[1])))
         self.wait(.5)
 
-        temp_dy_r2 = Line(r_y2.get_end(), r_y2.get_start()).set_color(GREEN).shift(LEFT * 0.02)
+        temp_dy_r2 = Line(r_y2.get_end(), r_y2.get_start()).set_color(GOLD).shift(LEFT * 0.02)
         temp_dy_r2_2 = temp_dy_r2.copy().shift(RIGHT * 0.04)
         self.play(ShowCreation(temp_dy_r2), ShowCreation(temp_dy_r2_2))
         self.wait(.5)
@@ -721,7 +735,7 @@ class StrafeOdometry(MovingCameraScene):
                   ReplacementTransform(temp_dy_r2_2, dy_x_unsimplified_equation[2]))
         self.wait(.5)
 
-        temp_line1 = Line(r_y2.get_end(), dy_components[1].get_end()).set_color(GREEN).shift(LEFT * 0.02)
+        temp_line1 = Line(r_y2.get_end(), dy_components[1].get_end()).set_color(WHITE).shift(LEFT * 0.02)
         temp_line2 = temp_line1.copy().shift(RIGHT * 0.04)
         self.play(FadeIn(dy_x_unsimplified_equation[3]))
         self.play(ShowCreation(temp_line1), ShowCreation(temp_line2))
@@ -780,16 +794,20 @@ class StrafeOdometry(MovingCameraScene):
         self.play(FadeIn(movement_robot), ReplacementTransform(VGroup(temp_dx_path, temp_dy_path), movement_path))
         self.wait()
 
-        dy_x_length = dy_components[0].get_height()
+        dx_x_length = dx_components[0].get_height()
         dx_y_length = dx_components[1].get_width()
+        dy_x_length = dy_components[0].get_height()
         dy_y_length = dy_components[1].get_width()
 
         self.play(FadeOut(VGroup(dx_components_labels, dy_components_labels)))
-        self.play(dy_components[0].put_start_and_end_on, dx_components[0].get_end(),
-                  dx_components[0].get_end() + DOWN * dy_x_length)
+        self.play(dy_components[1].put_start_and_end_on, dx_components[1].get_end(), dx_components[1].get_end() + dy_y_length*RIGHT,
+                  dy_components[0].shift, dx_x_length*UP, dx_y_length*RIGHT)
         self.wait()
-        self.play(dx_components[1].shift, DOWN * dy_x_length,
-                  dy_components[1].put_start_and_end_on,
-                  dx_components[0].get_end() + DOWN * dy_x_length + RIGHT * dx_y_length,
-                  dx_components[0].get_end() + DOWN * dy_x_length + RIGHT * (dx_y_length + dy_y_length))
-        self.wait()
+        # Ivan's bad code
+        # self.play(dy_components[0].put_start_and_end_on, dx_components[0].get_end(),
+        #           dx_components[0].get_end() + DOWN * dy_x_length)
+        # self.play(dx_components[1].shift, DOWN * dy_x_length,
+        #           dy_components[1].put_start_and_end_on,
+        #           dx_components[0].get_end() + DOWN * dy_x_length + RIGHT * dx_y_length,
+        #           dx_components[0].get_end() + DOWN * dy_x_length + RIGHT * (dx_y_length + dy_y_length))
+        # self.wait()
